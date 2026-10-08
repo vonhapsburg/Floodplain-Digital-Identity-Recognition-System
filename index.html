@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<!-- <!DOCTYPE html>：声明这是 HTML5 网页，必须写在第一行 -->
+<html lang="zh-CN">
+<!-- <html>：整个网页的根元素；lang="zh-CN"：声明页面语言为简体中文 -->
+<head>
+<!-- <head>：配置区，里面的内容不显示在页面上 -->
+
+  <meta charset="UTF-8">
+  <!-- charset="UTF-8"：文字编码用 UTF-8，保证中文不乱码 -->
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- viewport：手机适配。width=device-width 宽度跟随屏幕；initial-scale=1.0 初始缩放 1 倍 -->
+
+  <title>雅江洲滩数字身份证系统</title>
+  <!-- <title>：浏览器标签页上显示的标题 -->
+
+  <style>
+  /* <style>：写 CSS 样式的区域，格式为 选择器 { 属性: 值; } */
+
+    /* ========== 1. 全局颜色变量：给颜色起名字，方便统一修改 ========== */
+    :root {
+      --deep: #0b3d66;    /* 变量 --deep：深蓝色，用于大标题、表头文字 */
+      --blue: #1273c4;    /* 变量 --blue：主蓝色，用于链接、强调 */
+      --light: #e8f2fb;   /* 变量 --light：浅蓝色，用于表头背景 */
+      --text: #22303c;    /* 变量 --text：深灰色，用于正文文字 */
+      --muted: #6b7f8f;   /* 变量 --muted：灰色，用于提示性小字 */
+      --line: #d9e6f2;    /* 变量 --line：浅蓝灰，用于边框线 */
+      --warn: #b26a00;    /* 变量 --warn：棕黄色，专用于“暂无数据” */
+    }
+    /* 用法：var(--blue)。改这一处，全页同色一起变 */
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    /* * ：选中所有元素 */
+    /* margin: 0：外边距为 0（清除浏览器默认空隙） */
+    /* padding: 0：内边距为 0（清除浏览器默认空隙） */
+    /* box-sizing: border-box：宽度包含内边距和边框 */
+
+    html { scroll-behavior: smooth; }
+    /* scroll-behavior: smooth：点击锚点链接时平滑滚动 */
+
+    body {
+      font-family: "Microsoft YaHei", "PingFang SC", Arial, sans-serif;  /* 字体：依次尝试微软雅黑 → 苹方 → Arial */
+      background: #f2f7fb;   /* 背景颜色为浅蓝灰 #f2f7fb */
+      color: var(--text);    /* 文字颜色用变量 --text（深灰 #22303c） */
+      line-height: 1.75;     /* 行高为字号的 1.75 倍（行距） */
+    }
+
+    .wrap { max-width: 1000px; margin: 0 auto; padding: 0 18px; }
+    /* 选择器 .wrap：给 class="wrap" 的元素加样式 */
+    /* max-width: 1000px：最大宽度 1000 像素 */
+    /* margin: 0 auto：上下外边距 0，左右自动 → 水平居中 */
+    /* padding: 0 18px：上下内边距 0，左右各 18 像素 */
+
+    /* ========== 2. 页头 ========== */
+    .site-header {
+      background: linear-gradient(120deg, #0b3d66, #1273c4 60%, #1e9de0);  /* 背景色：120 度方向的三色渐变 */
+      color: #fff;           /* 文字颜色为白色 */
+      padding: 22px 0;       /* 上下内边距 22 像素，左右 0 */
+    }
+    .site-header h1 { font-size: 24px; letter-spacing: 1px; }
+    /* .site-header h1：只选页头里面的 h1 */
+    /* font-size: 24px：字体大小 24 像素 */
+    /* letter-spacing: 1px：字与字之间加 1 像素间距 */
+
+    .site-header .tagline { color: #cfe6f7; font-size: 14px; }
+    /* color: #cfe6f7：文字颜色为浅蓝白；font-size: 14px：字体大小 14 像素 */
+
+    .site-header .meta { color: #a9cdea; font-size: 12px; }
+    /* color: #a9cdea：文字颜色为淡蓝；font-size: 12px：字体大小 12 像素 */
+
+    /* ========== 3. 导航栏 ========== */
+    .site-nav {
+      background: #fff;                        /* 背景颜色为白色 */
+      border-bottom: 1px solid var(--line);    /* 下边框：1 像素实线，颜色用变量 --line */
+      position: sticky;                        /* 定位方式：粘性定位（滚动时吸在顶部） */
+      top: 0;                                  /* 吸在距离窗口顶部 0 的位置 */
+      z-index: 9;                              /* 叠放层级 9，保证盖在内容之上 */
+    }
+    .site-nav .wrap { display: flex; flex-wrap: wrap; }
+    /* display: flex：弹性布局，让 4 个链接排成一行 */
+    /* flex-wrap: wrap：一行放不下时自动换行 */
+
+    .site-nav a {
+      display: inline-block;                  /* 显示方式：行内块，可设宽高又不独占一行 */
+      padding: 12px 16px;                     /* 内边距：上下 12 像素，左右 16 像素（扩大点击范围） */
+      font-size: 14px;                        /* 字体大小 14 像素 */
+      color: var(--muted);                    /* 文字颜色用变量 --muted（灰色） */
+      text-decoration: none;                  /* 去掉链接默认的下划线 */
+      border-bottom: 3px solid transparent;   /* 下边框：3 像素实线，透明（为悬停留位置） */
+    }
+    .site-nav a:hover { color: var(--blue); border-bottom-color: var(--blue); }
+    /* :hover：鼠标悬停时的状态 */
+    /* color: var(--blue)：文字变成主蓝色 */
+    /* border-bottom-color: var(--blue)：下边框颜色变成主蓝色 */
+
+    /* ========== 4. 主体内容 ========== */
+    main { padding: 20px 0 4px; }
+    /* 内边距：上 20 像素，左右 0，下 4 像素 */
+
+    .card {
+      background: #fff;                                  /* 背景颜色为白色 */
+      border-radius: 10px;                               /* 圆角半径 10 像素 */
+      box-shadow: 0 2px 8px rgba(11, 61, 102, 0.08);     /* 阴影：向下 2 像素、模糊 8 像素、透明度 8% 的深蓝 */
+      padding: 18px 20px 20px;                           /* 内边距：上 18，左右 20，下 20 像素 */
+      margin-bottom: 20px;                               /* 下外边距 20 像素（卡片之间的距离） */
+      scroll-margin-top: 64px;                           /* 锚点跳转时顶部多留 64 像素，避免被导航栏挡住 */
+    }
+
+    h2 {
+      font-size: 18px;                        /* 字体大小 18 像素 */
+      color: var(--deep);                     /* 文字颜色用变量 --deep（深蓝） */
+      border-left: 4px solid var(--blue);     /* 左边框：4 像素实线，主蓝色（标题左侧竖条） */
+      padding-left: 10px;                     /* 左内边距 10 像素（文字与竖条的距离） */
+      margin-bottom: 12px;                    /* 下外边距 12 像素 */
+    }
+    h3 { font-size: 15px; color: var(--deep); margin: 18px 0 8px; }
+    /* font-size: 15px：字体大小 15 像素；color: var(--deep)：深蓝色 */
+    /* margin: 18px 0 8px：上外边距 18，左右 0，下 8 像素 */
+
+    p { margin: 6px 0; }
+    /* 段落外边距：上下 6 像素，左右 0 */
+
+    ul, ol { margin: 6px 0; padding-left: 24px; }
+    /* 列表外边距：上下 6 像素；padding-left: 24px：左内边距 24 像素（给项目符号留位置） */
+
+    li { margin: 4px 0; }
+    /* 列表项外边距：上下 4 像素 */
+
+    /* ========== 5. 表格 ========== */
+    .table-wrap { overflow-x: auto; }
+    /* overflow-x: auto：内容超出宽度时显示横向滚动条（表格宽时可左右滑动） */
+
+    table { width: 100%; border-collapse: collapse; font-size: 14px; margin: 8px 0; }
+    /* width: 100%：表格宽度占满容器 */
+    /* border-collapse: collapse：合并相邻单元格的边框（避免双线） */
+    /* font-size: 14px：字体大小 14 像素；margin: 8px 0：上下外边距 8 像素 */
+
+    th, td { border: 1px solid var(--line); padding: 8px 10px; text-align: left; vertical-align: top; }
+    /* th 表头格、td 数据格共用这套样式 */
+    /* border: 1px solid var(--line)：1 像素实线边框，颜色用变量 --line */
+    /* padding: 8px 10px：内边距上下 8、左右 10 像素 */
+    /* text-align: left：文字左对齐 */
+    /* vertical-align: top：单元格内容顶部对齐 */
+
+    th { background: var(--light); color: var(--deep); white-space: nowrap; }
+    /* background: var(--light)：背景用变量 --light（浅蓝） */
+    /* color: var(--deep)：文字深蓝色 */
+    /* white-space: nowrap：文字不换行 */
+
+    tbody tr:hover { background: #f7fbff; }
+    /* :hover 鼠标悬停时，该行背景变成极浅的蓝色 */
+
+    /* ========== 6. 编号与提示文字 ========== */
+    code {
+      font-family: Consolas, Menlo, monospace;   /* 字体：等宽字体 */
+      font-size: 13px;                           /* 字体大小 13 像素 */
+      background: #f2f7fb;                       /* 背景颜色为浅蓝灰 */
+      border: 1px solid #e2edf7;                 /* 边框：1 像素实线 #e2edf7 */
+      border-radius: 4px;                        /* 圆角半径 4 像素 */
+      padding: 1px 5px;                          /* 内边距：上下 1，左右 5 像素 */
+    }
+
+    .tip { font-size: 12.5px; color: var(--muted); }
+    /* font-size: 12.5px：字体大小 12.5 像素 */
+    /* color: var(--muted)：文字灰色 */
+
+    .missing { color: var(--warn); font-weight: 700; }
+    /* color: var(--warn)：文字棕黄色 */
+    /* font-weight: 700：字重 700（加粗） */
+
+    /* ========== 7. 页脚 ========== */
+    .site-footer {
+      border-top: 1px solid var(--line);   /* 上边框：1 像素实线，颜色用变量 --line */
+      background: #fff;                    /* 背景颜色为白色 */
+      padding: 16px 0;                     /* 上下内边距 16 像素 */
+      text-align: center;                  /* 文字居中 */
+      color: var(--muted);                 /* 文字灰色 */
+      font-size: 12.5px;                   /* 字体大小 12.5 像素 */
+    }
+    .site-footer p { margin: 2px 0; }
+    /* 页脚段落外边距：上下 2 像素 */
+
+    /* ========== 8. 手机适配（响应式） ========== */
+    @media (max-width: 640px) {
+    /* @media：屏幕宽度 ≤ 640 像素时，下面几条样式才生效 */
+      .site-header h1 { font-size: 20px; }    /* 页头标题字号从 24px 改为 20px */
+      .card { padding: 14px 14px 16px; }      /* 卡片内边距变小：上 14、左右 14、下 16 像素 */
+      th, td { padding: 6px 8px; }            /* 单元格内边距变小：上下 6、左右 8 像素 */
+    }
+  </style>
+</head>
+
+<body>
+<!-- <body>：显示区，能在页面上看到的内容都写在这里 -->
+
+  <!-- ========== 页头 ========== -->
+  <header class="site-header">
+  <!-- <header>：页头区域；class="site-header"：挂上对应的样式 -->
+    <div class="wrap">
+    <!-- <div>：无语义的容器盒子；class="wrap"：限制宽度并水平居中 -->
+      <h1>雅江洲滩数字身份证系统</h1>
+      <!-- <h1>：一级标题，全页最大最重要，通常只用一个 -->
+      <p class="tagline">一洲一档 · 一滩一证</p>
+      <!-- <p>：段落；class="tagline"：套用页头里的小字样式 -->
+      <p class="meta">数据更新：2026-10-08 ｜ 本页为演示数据，仅用于课程展示</p>
+      <!-- class="meta"：页头第三行小字（更新日期、演示数据声明） -->
+    </div>
+  </header>
+
+  <!-- ========== 导航栏 ========== -->
+  <nav class="site-nav">
+  <!-- <nav>：导航区域，放一组主要链接 -->
+    <div class="wrap">
+      <a href="#overview">系统概览</a>
+      <!-- <a>：超链接；href="#overview"：跳到 id="overview" 的区块 -->
+      <a href="#list">洲滩名录</a>
+      <!-- href="#list"：跳到 id="list" 的区块 -->
+      <a href="#archives">身份档案</a>
+      <!-- href="#archives"：跳到 id="archives" 的区块 -->
+      <a href="#rules">发证规范</a>
+      <!-- href="#rules"：跳到 id="rules" 的区块 -->
+    </div>
+  </nav>
+
+  <main class="wrap">
+  <!-- <main>：主体内容区，一页只写一个；class="wrap"：限宽居中 -->
+
+    <!-- ========== ① 系统概览 ========== -->
+    <section id="overview" class="card">
+    <!-- <section>：一个主题区块；id="overview"：导航链接的跳转目标；class="card"：白卡片样式 -->
+      <h2>系统概览</h2>
+      <!-- <h2>：区块标题（比 h1 小一级） -->
+      <p>雅江洲滩数字身份证系统为雅鲁藏布江（以下简称“雅江”）沿江的江心洲、沙洲、边滩建立统一档案：每处洲滩拥有一个 19 位基础ID，并按水文期与形态附加 2 位动态后缀，做到“一处洲滩一个基础ID、一种状态一条完整编号”。</p>
+      <!-- 一段正文，说明系统做什么 -->
+      <p>本页为第一阶段成果，展示洲滩名录、身份证式档案示例与编号规范，供河道管理人员查档核对，也便于巡查人员现场对照。</p>
+      <ul>
+      <!-- <ul>：无序列表（圆点），里面只能放 <li> -->
+        <li>登记洲滩：6 处（覆盖上游、中游、下游）</li>
+        <!-- <li>：列表项 -->
+        <li>基础ID：6 个（19 位、互不相同）</li>
+        <li>含待补录字段：1 处（张家洲 · 滩顶高程）</li>
+      </ul>
+      <p class="tip">注：以上均为演示数据，仅用于课程展示。</p>
+      <!-- class="tip"：灰色小字，用作说明 -->
+    </section>
+
+    <!-- ========== ② 洲滩名录 ========== -->
+    <section id="list" class="card">
+    <!-- id="list"：导航“洲滩名录”的跳转目标 -->
+      <h2>洲滩名录</h2>
+      <p class="tip">共 6 处（演示数据）。完整编号＝基础ID＋“_”＋后缀；点击名称“张家洲”，可跳转至下方“身份档案示例”。</p>
+
+      <div class="table-wrap">
+      <!-- class="table-wrap"：表格外层盒子，负责宽表格横向滚动 -->
+        <table>
+        <!-- <table>：表格 -->
+          <thead>
+          <!-- <thead>：表头区域，放列名 -->
+            <tr>
+            <!-- <tr>：表格的一行 -->
+              <th>基础ID（19 位）</th>
+              <!-- <th>：表头单元格（列名） -->
+              <th>名称</th>
+              <th>位置</th>
+              <th>类型</th>
+              <th>面积</th>
+              <th>后缀示例</th>
+            </tr>
+          </thead>
+          <tbody>
+          <!-- <tbody>：表体区域，放数据行 -->
+            <tr>
+              <td><code>YZ05404819626129261</code></td>
+              <!-- <td>：数据单元格；<code>：标示这是编号，套用等宽字体样式 -->
+              <td><a href="#archives">张家洲</a></td>
+              <!-- 把名称做成链接，点击跳到 id="archives" 的档案区块 -->
+              <td>雅江中游 · 米林河段</td>
+              <td>江心洲</td>
+              <td>2.35 km&sup2;</td>
+              <!-- &sup2;：HTML 实体，显示为上标数字 2（即 km²） -->
+              <td>DS（枯水期·稳定）</td>
+            </tr>
+            <tr>
+              <td><code>YZ05404819463229335</code></td>
+              <td>丹娘沙洲</td>
+              <td>雅江中游 · 丹娘河段</td>
+              <td>沙洲</td>
+              <td>1.26 km&sup2;</td>
+              <td>NY（平水期·游荡）</td>
+            </tr>
+            <tr>
+              <td><code>YS05402328347129681</code></td>
+              <td>帕羊洲</td>
+              <td>雅江上游 · 仲巴河段</td>
+              <td>江心洲</td>
+              <td>3.10 km&sup2;</td>
+              <td>NS（三个水文期均稳定）</td>
+            </tr>
+            <tr>
+              <td><code>YS05402368523329330</code></td>
+              <td>加加滩</td>
+              <td>雅江上游 · 萨嘎河段</td>
+              <td>边滩</td>
+              <td>1.42 km&sup2;</td>
+              <td>DX（枯水期·多洲合并）</td>
+            </tr>
+            <tr>
+              <td><code>YX05404239506129289</code></td>
+              <td>背崩滩</td>
+              <td>雅江下游 · 背崩河段</td>
+              <td>边滩</td>
+              <td>0.95 km&sup2;</td>
+              <td>FX（丰水期·切割或淹没）</td>
+            </tr>
+            <tr>
+              <td><code>YX05404239531229516</code></td>
+              <td>帮辛沙洲</td>
+              <td>雅江下游 · 帮辛河段</td>
+              <td>沙洲</td>
+              <td>1.75 km&sup2;</td>
+              <td>DY（枯水期·裸露增大）</td>
+            </tr>
+            <!-- 以上共 6 个 <tr>，即 6 行数据 -->
+          </tbody>
+        </table>
+      </div>
+
+      <!-- ² 使用 &sup2; 实体、° 使用 &deg; 实体，确保任何环境下都正确显示 -->
+      <p class="tip">例如：张家洲本期完整编号为 <code>YZ05404819626129261_DS</code>（枯水期·稳定）。</p>
+    </section>
+
+    <!-- ========== ③ 身份档案示例 ========== -->
+    <section id="archives" class="card">
+    <!-- id="archives"：名录中“张家洲”链接的跳转目标 -->
+      <h2>身份档案示例：张家洲</h2>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>字段</th>
+              <th>内容</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>基础ID</td><td><code>YZ05404819626129261</code></td></tr>
+            <tr><td>名称</td><td>张家洲</td></tr>
+            <tr><td>类型</td><td>江心洲</td></tr>
+            <tr><td>所在位置</td><td>雅江中游 · 米林河段</td></tr>
+            <tr><td>行政区</td><td>米林市（行政区代码 540481）</td></tr>
+            <tr><td>质心坐标</td><td>东经 96.261&deg;，北纬 29.261&deg;</td></tr>
+            <!-- &deg;：HTML 实体，显示为度数符号（°） -->
+            <tr><td>面积</td><td>2.35 km&sup2;</td></tr>
+            <tr><td>滩顶高程</td><td class="missing">暂无数据</td></tr>
+            <!-- class="missing"：棕黄加粗，表示“这一项缺失” -->
+            <tr><td>建档日期</td><td>2026-03-12</td></tr>
+            <tr><td>本期状态后缀</td><td>DS（枯水期·稳定）</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>同一洲滩、不同水文期的完整编号示例</h3>
+      <!-- <h3>：区块内的小节标题 -->
+      <ul>
+        <li>2023 年枯水期（出露、形态稳定）：<code>YZ05404819626129261_DS</code></li>
+        <li>2023 年丰水期（被切割／淹没）：<code>YZ05404819626129261_FX</code></li>
+        <li>2024 年平水期（恢复、位置微移）：<code>YZ05404819626129261_NY</code></li>
+      </ul>
+
+      <p class="tip">字段缺失时显示“暂无数据”，不使用 0 或空白替代；填写规则详见下方“发证规范”。</p>
+    </section>
+
+    <!-- ========== ④ 发证规范 ========== -->
+    <section id="rules" class="card">
+    <!-- id="rules"：导航“发证规范”的跳转目标 -->
+      <h2>发证规范</h2>
+      <p>完整身份证号＝基础ID（19 位）＋“_”＋动态后缀（2 位）。以下为编号与填写的要点，细则见《雅江洲滩“数字身份证”命名规则》。</p>
+
+      <h3>基础ID：3 段组成，共 19 位（确定“是谁”）</h3>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>组成</th>
+              <th>位数</th>
+              <th>说明</th>
+              <th>示例</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>流域段代码</td>
+              <td>3 位</td>
+              <td>YS0＝上游；YZ0＝中游；YX0＝下游</td>
+              <td><code>YZ0</code></td>
+            </tr>
+            <tr>
+              <td>行政区代码</td>
+              <td>6 位</td>
+              <td>按现行行政区划代码填写</td>
+              <td><code>540481</code>（米林市）</td>
+            </tr>
+            <tr>
+              <td>地理位置码</td>
+              <td>10 位</td>
+              <td>取洲滩质心坐标：经度、纬度各 5 位（整数 2 位＋小数 3 位）</td>
+              <td>东经 96.261&deg;、北纬 29.261&deg; → <code>9626129261</code></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>动态后缀：2 位字母（确定“现在是什么状态”）</h3>
+      <ul>
+        <li>第 1 位 · 水文期：D＝枯水期（出露面积最大、形态最复杂）；N＝平水期（相对稳定）；F＝丰水期（被淹没或切割、形态破碎）。</li>
+        <li>第 2 位 · 形态：S＝稳定（面积或形状变化小于 10%）；Y＝游荡（位置或形状中等变化）；X＝新生或消亡（新出现的沙洲或即将消失的沙洲）。</li>
+      </ul>
+      <p>完整编号示例：<code>YZ05404819626129261_DS</code>（2023 年枯水期 · 稳定）。</p>
+
+      <h3>常见后缀组合（节选 · 跨水文期观察）</h3>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>组合</th>
+              <th>含义</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td><code>NS</code></td><td>三个水文期形态均稳定，几乎无明显变化</td></tr>
+            <tr><td><code>NY</code></td><td>各水文期大小形状明显变化、互不相同，但洲滩数量保持不变</td></tr>
+            <tr><td><code>NX</code></td><td>各水文期洲滩数量均发生变化、互不相同</td></tr>
+            <tr><td><code>FY</code></td><td>平水期与枯水期相似；丰水期形状大小明显改变、淹没部分较多</td></tr>
+            <tr><td><code>FX</code></td><td>平水期与枯水期相似；丰水期被上涨水位切割成多个新洲滩，或完全淹没</td></tr>
+            <tr><td><code>DY</code></td><td>平水期与丰水期相似；枯水期形态明显改变、裸露部分较多</td></tr>
+            <tr><td><code>DX</code></td><td>平水期与丰水期相似；枯水期因水位下降，多个洲滩合成一个新洲滩</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="tip">完整定义与更多组合见《雅江洲滩“数字身份证”命名规则》。</p>
+
+      <h3>字段填写规则</h3>
+      <ul>
+        <li>字段信息缺失时一律填写“暂无数据”，不使用 0、空白或虚构值代替。</li>
+        <li>面积以 km&sup2; 为单位记录、保留两位小数；日期使用 YYYY-MM-DD 格式（如 2026-03-12）。</li>
+        <li>基础ID 一经发证不再变更；每次观测在基础ID 后附加当期 2 位后缀，形成完整编号。</li>
+        <li>基础ID 全库唯一；后缀第 1 位仅取 D／N／F，第 2 位仅取 S／Y／X。</li>
+      </ul>
+
+      <h3>发证流程</h3>
+      <ol>
+      <!-- <ol>：有序列表，自动显示 1. 2. 3. 编号 -->
+        <li>采集：现场记录洲滩基本信息，并采集质心坐标。</li>
+        <li>编排：按“流域段＋行政区＋地理位置”三段生成 19 位基础ID，登记入名录。</li>
+        <li>建档：按字段表录入档案；缺失字段填写“暂无数据”。</li>
+        <li>发证：观测当期形态后附加 2 位后缀（如 DS），形成完整编号。</li>
+        <li>复核：汛前核查逐项核对，缺项列入补录清单。</li>
+      </ol>
+    </section>
+
+  </main>
+
+  <!-- ========== 页脚 ========== -->
+  <footer class="site-footer">
+  <!-- <footer>：页脚区域，放声明和收尾信息 -->
+    <div class="wrap">
+      <p>本页所有洲滩名称、编号、坐标与数值均为课程演示数据，不代表真实情况，不用于实际业务。</p>
+      <p>小组：floodplain ｜ 项目：雅江洲滩数字身份证系统 ｜ 版本：v1.1（第一阶段） ｜ 更新日期：2026-10-08</p>
+    </div>
+  </footer>
+
+</body>
+<!-- </body>：显示区结束 -->
+</html>
