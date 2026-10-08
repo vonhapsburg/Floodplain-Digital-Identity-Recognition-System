@@ -1,693 +1,371 @@
 <!DOCTYPE html>
-<!-- ================================================================
-     洲滩数字身份证系统 · 单文件学习示例
-     由三部分组成：HTML（结构）+ CSS（样式）+ JavaScript（交互）
-     页面内所有数据均为模拟数据，仅供学习演示
-     ================================================================ -->
+<!-- ============================================================
+     雅江洲滩数字身份证系统 · 首页（第一阶段）
+     · 纯 HTML＋CSS 单文件：不依赖 JavaScript、无外部资源，双击即可打开
+     · 所有数据均为课程演示数据，不用于实际业务
+     · 编号规则依据：《雅江洲滩“数字身份证”命名规则》
+     · 对应需求：R1 导航定位 / R2 名录表(6行×6列、19位基础ID) / R3 暂无数据 /
+       R4 张家洲跳转与三条编号示例 / R5 标题与特殊字符 / R6 演示数据标注 / R7 编号格式统一
+     ============================================================ -->
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>洲滩数字身份证系统</title>
+  <title>雅江洲滩数字身份证系统</title>
 
   <style>
-    /* ================= 1. 全局变量与基础样式 ================= */
+    /* ================= 全局 ================= */
     :root {
-      --blue-deep: #0b3d66;   /* 深蓝：标题栏、强调 */
-      --blue: #1273c4;        /* 主色 */
-      --blue-light: #e8f2fb;  /* 浅蓝：表头、悬停背景 */
-      --ok: #1a9c5b;          /* 正常：绿 */
-      --warn: #d98f00;        /* 关注：橙 */
-      --danger: #d9453c;      /* 预警：红 */
+      --deep: #0b3d66;    /* 深蓝：标题、表头文字 */
+      --blue: #1273c4;    /* 主色 */
+      --light: #e8f2fb;   /* 浅蓝：表头背景 */
       --text: #22303c;
       --muted: #6b7f8f;
       --line: #d9e6f2;
+      --warn: #b26a00;    /* “暂无数据”提示色 */
     }
     * { margin: 0; padding: 0; box-sizing: border-box; }
     html { scroll-behavior: smooth; }
     body {
       font-family: "Microsoft YaHei", "PingFang SC", Arial, sans-serif;
-      background: #eef4f9;
+      background: #f2f7fb;
       color: var(--text);
-      line-height: 1.6;
+      line-height: 1.75;
     }
+    .wrap { max-width: 1000px; margin: 0 auto; padding: 0 18px; }
 
-    /* ================= 2. 顶部标题栏 ================= */
-    header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 10px;
-      padding: 18px 28px;
-      background: linear-gradient(120deg, #0b3d66, #1273c4 55%, #1e9de0);
+    /* ================= 页头 ================= */
+    .site-header {
+      background: linear-gradient(120deg, #0b3d66, #1273c4 60%, #1e9de0);
       color: #fff;
+      padding: 22px 0;
     }
-    header h1 { font-size: 22px; letter-spacing: 1px; }
-    header .sub { font-size: 12px; color: #cfe6f7; }
-    #clock {
-      font-size: 14px;
-      background: rgba(255, 255, 255, 0.15);
-      padding: 6px 14px;
-      border-radius: 20px;
-    }
+    .site-header h1 { font-size: 24px; letter-spacing: 1px; }
+    .site-header .tagline { color: #cfe6f7; font-size: 14px; }
+    .site-header .meta { color: #a9cdea; font-size: 12px; }
 
-    /* ================= 3. 导航栏 ================= */
-    nav {
-      display: flex;
-      gap: 6px;
-      padding: 0 28px;
+    /* ================= 导航栏 ================= */
+    .site-nav {
       background: #fff;
       border-bottom: 1px solid var(--line);
+      position: sticky;
+      top: 0;
+      z-index: 9;
     }
-    nav a {
-      padding: 12px 18px;
+    .site-nav .wrap { display: flex; flex-wrap: wrap; }
+    .site-nav a {
+      display: inline-block;
+      padding: 12px 16px;
       font-size: 14px;
       color: var(--muted);
       text-decoration: none;
       border-bottom: 3px solid transparent;
     }
-    nav a:hover { color: var(--blue); }
-    nav a.active { color: var(--blue); font-weight: 700; border-bottom-color: var(--blue); }
+    .site-nav a:hover { color: var(--blue); border-bottom-color: var(--blue); }
 
-    /* ================= 4. 主体布局 ================= */
-    main {
-      max-width: 1200px;
-      margin: 20px auto;
-      padding: 0 20px;
-      display: grid;
-      gap: 20px;
-    }
-    .panel {
-      background: #fff;
-      border-radius: 10px;
-      padding: 16px 18px;
-      box-shadow: 0 2px 8px rgba(11, 61, 102, 0.08);
-    }
-    .panel-head {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 10px;
-      flex-wrap: wrap;
-      margin-bottom: 10px;
-    }
-    .panel-head h2 { font-size: 16px; }
-    .tip { font-size: 12px; color: var(--muted); }
-    .hint { font-size: 12px; color: var(--muted); margin-top: 8px; }
-    /* 两栏布局：左宽右窄 */
-    .columns {
-      display: grid;
-      grid-template-columns: 3fr 2fr;
-      gap: 20px;
-      align-items: start;
-    }
-
-    /* ================= 5. 统计卡片 ================= */
-    .cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+    /* ================= 主体区块 ================= */
+    main { padding: 20px 0 4px; }
     .card {
       background: #fff;
-      padding: 16px 18px;
       border-radius: 10px;
-      border-left: 4px solid var(--blue);
       box-shadow: 0 2px 8px rgba(11, 61, 102, 0.08);
+      padding: 18px 20px 20px;
+      margin-bottom: 20px;
+      scroll-margin-top: 64px;   /* 点击锚点跳转时，留出顶部粘性导航的高度 */
     }
-    .card.warn { border-left-color: var(--warn); }
-    .card .label { font-size: 13px; color: var(--muted); }
-    .card .value { font-size: 26px; font-weight: 700; margin: 2px 0; }
-    .card .value small { font-size: 13px; font-weight: 400; color: var(--muted); }
-    .card .trend { font-size: 12px; color: var(--muted); }
+    h2 {
+      font-size: 18px;
+      color: var(--deep);
+      border-left: 4px solid var(--blue);
+      padding-left: 10px;
+      margin-bottom: 12px;
+    }
+    h3 { font-size: 15px; color: var(--deep); margin: 18px 0 8px; }
+    p { margin: 6px 0; }
+    ul, ol { margin: 6px 0; padding-left: 24px; }
+    li { margin: 4px 0; }
 
-    /* ================= 6. 搜索工具条 ================= */
-    .toolbar { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; }
-    .toolbar input[type="text"] {
-      flex: 1;
-      min-width: 170px;
-      padding: 7px 10px;
-      border: 1px solid var(--line);
-      border-radius: 8px;
+    /* ================= 表格 ================= */
+    .table-wrap { overflow-x: auto; }   /* 窄屏幕时表格可横向滚动 */
+    table { width: 100%; border-collapse: collapse; font-size: 14px; margin: 8px 0; }
+    th, td { border: 1px solid var(--line); padding: 8px 10px; text-align: left; vertical-align: top; }
+    th { background: var(--light); color: var(--deep); white-space: nowrap; }
+    tbody tr:hover { background: #f7fbff; }
+
+    /* ================= 编号与提示 ================= */
+    code {
+      font-family: Consolas, Menlo, monospace;
       font-size: 13px;
-      color: var(--text);
+      background: #f2f7fb;
+      border: 1px solid #e2edf7;
+      border-radius: 4px;
+      padding: 1px 5px;
     }
-    .toolbar select {
-      padding: 7px 10px;
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      font-size: 13px;
-      color: var(--text);
+    .tip { font-size: 12.5px; color: var(--muted); }
+    .missing { color: var(--warn); font-weight: 700; }
+
+    /* ================= 页脚 ================= */
+    .site-footer {
+      border-top: 1px solid var(--line);
       background: #fff;
-    }
-    .btn {
-      border: 1px solid #cfe0f2;
-      background: #fff;
-      color: var(--blue);
-      font-size: 13px;
-      padding: 6px 14px;
-      border-radius: 8px;
-      cursor: pointer;
-    }
-    .btn:hover { background: var(--blue-light); }
-    .btn.primary { background: var(--blue); border-color: var(--blue); color: #fff; }
-    .btn.primary:hover { background: #0f66ad; }
-
-    /* ================= 7. 数据表格 ================= */
-    .table-wrap { overflow-x: auto; }   /* 窄屏时允许横向滚动 */
-    table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
-    thead th {
-      text-align: left;
-      padding: 9px 10px;
-      background: var(--blue-light);
-      color: var(--blue-deep);
-      font-size: 13px;
-      white-space: nowrap;
-    }
-    tbody td { padding: 9px 10px; border-bottom: 1px solid #eaf1f8; white-space: nowrap; }
-    tbody tr { cursor: pointer; }               /* 整行可点击 */
-    tbody tr:hover { background: #f5faff; }
-    tbody tr.selected { background: #dceafc; }  /* 当前选中行 */
-    tbody tr.empty { cursor: default; }
-    tbody tr.empty:hover { background: transparent; }
-    tbody tr.empty td { text-align: center; color: var(--muted); padding: 18px; }
-
-    /* 状态徽标 */
-    .badge { display: inline-block; padding: 2px 10px; border-radius: 12px; font-size: 12px; white-space: nowrap; }
-    .badge.ok    { background: #e3f6eb; color: var(--ok); }
-    .badge.watch { background: #fdf3dd; color: var(--warn); }
-    .badge.bad   { background: #fde8e6; color: var(--danger); }
-
-    /* ================= 8. 数字身份证卡 ================= */
-    .id-card { border: 2px solid var(--blue-deep); border-radius: 12px; overflow: hidden; }
-    .id-card-top {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 10px 14px;
-      background: linear-gradient(120deg, #0b3d66, #1273c4);
-      color: #fff;
-    }
-    .id-card-top .title { flex: 1; font-size: 15px; font-weight: 700; letter-spacing: 2px; }
-    .id-card-top .no {
-      font-family: Consolas, monospace;
-      font-size: 13px;
-      background: rgba(255, 255, 255, 0.18);
-      padding: 2px 10px;
-      border-radius: 12px;
-    }
-    .id-card-body {
-      display: grid;
-      grid-template-columns: 100px 1fr;
-      gap: 14px;
-      padding: 14px;
-    }
-    .photo svg {
-      width: 100px;
-      height: 110px;
-      display: block;
-      border: 1px solid var(--line);
-      border-radius: 8px;
-    }
-    .photo figcaption { font-size: 11px; color: var(--muted); text-align: center; margin-top: 4px; }
-    .id-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 14px; align-content: start; }
-    .field {
-      display: flex;
-      justify-content: space-between;
-      gap: 8px;
-      padding: 3px 2px;
-      border-bottom: 1px dashed var(--line);
+      padding: 16px 0;
+      text-align: center;
+      color: var(--muted);
       font-size: 12.5px;
     }
-    .field .k { color: var(--muted); flex: none; }
-    .field .v { font-weight: 600; text-align: right; white-space: nowrap; }
-    .field.wide { grid-column: 1 / -1; }   /* 跨两列 */
-    .id-card-foot {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 12px;
-      flex-wrap: wrap;
-      padding: 10px 14px;
-      border-top: 1px dashed var(--line);
-    }
-    .verify-no { font-family: Consolas, monospace; font-size: 12px; color: var(--blue-deep); margin-top: 4px; }
-    .qr-wrap { display: flex; align-items: center; gap: 10px; }
-    .qr {
-      display: grid;
-      grid-template-columns: repeat(11, 1fr);   /* 11 × 11 个格子 */
-      grid-template-rows: repeat(11, 1fr);
-      width: 88px;
-      height: 88px;
-      padding: 4px;
-      background: #fff;
-      border: 1px solid var(--line);
-      border-radius: 6px;
-    }
-    .qr span { background: #fff; }
-    .qr span.on { background: var(--blue-deep); }
+    .site-footer p { margin: 2px 0; }
 
-    /* ================= 9. 预警列表 ================= */
-    .alerts { list-style: none; }
-    .alerts li {
-      display: flex;
-      gap: 10px;
-      padding: 10px 12px;
-      margin-bottom: 10px;
-      border-radius: 8px;
-      background: #f7fafd;
-      border: 1px solid #e3edf7;
-      font-size: 13px;
-    }
-    .alerts .dot { flex: none; width: 10px; height: 10px; margin-top: 6px; border-radius: 50%; }
-    .dot.red { background: var(--danger); }
-    .dot.yellow { background: var(--warn); }
-    .dot.green { background: var(--ok); }
-    .alerts time { display: block; font-size: 12px; color: var(--muted); }
-
-    /* ================= 10. 类型分布条形图 ================= */
-    .bars { display: grid; gap: 12px; margin-top: 6px; }
-    .bar-row { display: grid; grid-template-columns: 64px 1fr 52px; align-items: center; gap: 10px; font-size: 13px; }
-    .bar-track { height: 12px; background: #eef4f9; border-radius: 6px; overflow: hidden; }
-    .bar-fill { height: 100%; border-radius: 6px; background: var(--blue); }
-    .bar-fill.b2 { background: #2e9be0; }
-    .bar-fill.b3 { background: #7fbce8; }
-    .bar-count { text-align: right; color: var(--muted); }
-
-    /* ================= 11. 页脚与响应式 ================= */
-    footer { text-align: center; padding: 18px; font-size: 12px; color: var(--muted); }
-
-    @media (max-width: 900px) {
-      .cards { grid-template-columns: repeat(2, 1fr); }
-      .columns { grid-template-columns: 1fr; }
-    }
-    @media (max-width: 560px) {
-      .cards { grid-template-columns: 1fr; }
-      .id-fields { grid-template-columns: 1fr; }
+    /* ================= 小屏幕适配 ================= */
+    @media (max-width: 640px) {
+      .site-header h1 { font-size: 20px; }
+      .card { padding: 14px 14px 16px; }
+      th, td { padding: 6px 8px; }
     }
   </style>
 </head>
 
 <body>
-  <!-- ==================== 顶部标题栏 ==================== -->
-  <header>
-    <div>
-      <h1>洲滩数字身份证系统</h1>
-      <div class="sub">××流域河道管理 · 一洲一档 · 一滩一证 · 页面数据均为模拟</div>
+
+  <!-- ============ 页头：系统名称、一句话定位、更新日期与演示数据标注 ============ -->
+  <header class="site-header">
+    <div class="wrap">
+      <h1>雅江洲滩数字身份证系统</h1>
+      <p class="tagline">一洲一档 · 一滩一证</p>
+      <p class="meta">数据更新：2026-10-08 ｜ 本页为演示数据，仅用于课程展示</p>
     </div>
-    <div id="clock">加载中…</div>
   </header>
 
-  <!-- ==================== 导航栏 ==================== -->
-  <nav>
-    <a href="#overview" class="active">首页概览</a>
-    <a href="#list">洲滩名录</a>
-    <a href="#card">身份档案</a>
-    <a href="#alerts">监测预警</a>
+  <!-- ============ 导航：4 个链接分别定位到下方 4 个区块 ============ -->
+  <nav class="site-nav">
+    <div class="wrap">
+      <a href="#overview">系统概览</a>
+      <a href="#list">洲滩名录</a>
+      <a href="#archives">身份档案</a>
+      <a href="#rules">发证规范</a>
+    </div>
   </nav>
 
-  <!-- ==================== 主体内容 ==================== -->
-  <main>
+  <main class="wrap">
 
-    <!-- ① 统计卡片 -->
-    <section class="cards" id="overview">
-      <div class="card">
-        <div class="label">登记洲滩总数</div>
-        <div class="value">126 <small>处</small></div>
-        <div class="trend">本月新增 3 处 · 江心洲 28 / 沙洲 39 / 边滩 59</div>
-      </div>
-      <div class="card">
-        <div class="label">数字身份证已发放</div>
-        <div class="value">118 <small>张</small></div>
-        <div class="trend">建档率 93.7% · 待建档 8 处</div>
-      </div>
-      <div class="card warn">
-        <div class="label">重点监管洲滩</div>
-        <div class="value">12 <small>处</small></div>
-        <div class="trend">含侵占风险点 7 处 · 汛期管控 5 处</div>
-      </div>
-      <div class="card">
-        <div class="label">监测设备在线率</div>
-        <div class="value">97.6 <small>%</small></div>
-        <div class="trend">41 台在线 · 1 台离线（已派单检修）</div>
-      </div>
+    <!-- ============ ① 系统概览（锚点 overview） ============ -->
+    <section id="overview" class="card">
+      <h2>系统概览</h2>
+      <p>雅江洲滩数字身份证系统为雅鲁藏布江（以下简称“雅江”）沿江的江心洲、沙洲、边滩建立统一档案：每处洲滩拥有一个 19 位基础ID，并按水文期与形态附加 2 位动态后缀，做到“一处洲滩一个基础ID、一种状态一条完整编号”。</p>
+      <p>本页为第一阶段成果，展示洲滩名录、身份证式档案示例与编号规范，供河道管理人员查档核对，也便于巡查人员现场对照。</p>
+      <ul>
+        <li>登记洲滩：6 处（覆盖上游、中游、下游）</li>
+        <li>基础ID：6 个（19 位、互不相同）</li>
+        <li>含待补录字段：1 处（张家洲 · 滩顶高程）</li>
+      </ul>
+      <p class="tip">注：以上均为演示数据，仅用于课程展示。</p>
     </section>
 
-    <!-- ② 左：洲滩名录（表格由 JS 生成）；右：数字身份证卡 -->
-    <section class="columns">
+    <!-- ============ ② 洲滩名录（锚点 list） ============ -->
+    <section id="list" class="card">
+      <h2>洲滩名录</h2>
+      <p class="tip">共 6 处（演示数据）。完整编号＝基础ID＋“_”＋后缀；点击名称“张家洲”，可跳转至下方“身份档案示例”。</p>
 
-      <div class="panel" id="list">
-        <div class="panel-head">
-          <h2>洲滩名录</h2>
-          <span class="tip" id="listCount">共 0 处</span>
-        </div>
-
-        <!-- 搜索表单：关键词 + 类型下拉 + 查询 / 重置 -->
-        <form class="toolbar" id="searchForm">
-          <input type="text" id="keyword"
-                 placeholder="输入名称或身份证编号，如：张家洲 / ZT-0002"
-                 aria-label="按名称或身份证编号查询">
-          <select id="typeFilter" aria-label="按洲滩类型筛选">
-            <option value="all">全部类型</option>
-            <option value="江心洲">江心洲</option>
-            <option value="沙洲">沙洲</option>
-            <option value="边滩">边滩</option>
-          </select>
-          <button class="btn primary" type="submit">查询</button>
-          <button class="btn" type="button" id="resetBtn">重置</button>
-        </form>
-
-        <div class="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>身份证编号</th>
-                <th>名称</th>
-                <th>类型</th>
-                <th>所在河段</th>
-                <th>面积(km²)</th>
-                <th>状态</th>
-              </tr>
-            </thead>
-            <tbody id="shoalBody">
-              <!-- JS 会把每条档案渲染成一行，插到下面这行提示的前面 -->
-              <tr id="emptyRow" class="empty" hidden>
-                <td colspan="6">未找到匹配的洲滩，请更换关键词或类型。</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-        <p class="hint">提示：点击任意一行，右侧"数字身份证"会切换为该洲滩的档案。</p>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>基础ID（19 位）</th>
+              <th>名称</th>
+              <th>位置</th>
+              <th>类型</th>
+              <th>面积</th>
+              <th>后缀示例</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>YZ05404819626129261</code></td>
+              <td><a href="#archives">张家洲</a></td>
+              <td>雅江中游 · 米林河段</td>
+              <td>江心洲</td>
+              <td>2.35 km&sup2;</td>
+              <td>DS（枯水期·稳定）</td>
+            </tr>
+            <tr>
+              <td><code>YZ05404819463229335</code></td>
+              <td>丹娘沙洲</td>
+              <td>雅江中游 · 丹娘河段</td>
+              <td>沙洲</td>
+              <td>1.26 km&sup2;</td>
+              <td>NY（平水期·游荡）</td>
+            </tr>
+            <tr>
+              <td><code>YS05402328347129681</code></td>
+              <td>帕羊洲</td>
+              <td>雅江上游 · 仲巴河段</td>
+              <td>江心洲</td>
+              <td>3.10 km&sup2;</td>
+              <td>NS（三个水文期均稳定）</td>
+            </tr>
+            <tr>
+              <td><code>YS05402368523329330</code></td>
+              <td>加加滩</td>
+              <td>雅江上游 · 萨嘎河段</td>
+              <td>边滩</td>
+              <td>1.42 km&sup2;</td>
+              <td>DX（枯水期·多洲合并）</td>
+            </tr>
+            <tr>
+              <td><code>YX05404239506129289</code></td>
+              <td>背崩滩</td>
+              <td>雅江下游 · 背崩河段</td>
+              <td>边滩</td>
+              <td>0.95 km&sup2;</td>
+              <td>FX（丰水期·切割或淹没）</td>
+            </tr>
+            <tr>
+              <td><code>YX05404239531229516</code></td>
+              <td>帮辛沙洲</td>
+              <td>雅江下游 · 帮辛河段</td>
+              <td>沙洲</td>
+              <td>1.75 km&sup2;</td>
+              <td>DY（枯水期·裸露增大）</td>
+            </tr>
+          </tbody>
+        </table>
       </div>
 
-      <div class="panel" id="card">
-        <div class="panel-head">
-          <h2>数字身份证</h2>
-          <span class="tip">选中名录中的洲滩即可切换</span>
-        </div>
-
-        <div class="id-card">
-          <!-- 卡头：证件名 + 编号 + 状态 -->
-          <div class="id-card-top">
-            <span class="title">洲滩数字身份证</span>
-            <span class="no" id="cardNo">ZT-0001</span>
-            <span class="badge ok" id="cardStatus">正常</span>
-          </div>
-
-          <!-- 卡身：左侧示意图（内联 SVG 手绘），右侧档案字段 -->
-          <div class="id-card-body">
-            <figure class="photo">
-              <svg viewBox="0 0 100 110" role="img" aria-label="洲滩示意图">
-                <rect width="100" height="110" fill="#dceefb"></rect>
-                <rect y="62" width="100" height="48" fill="#bcdcf2"></rect>
-                <ellipse cx="50" cy="76" rx="34" ry="9" fill="#8fbf6f"></ellipse>
-                <ellipse cx="50" cy="71" rx="20" ry="5" fill="#a8d18b"></ellipse>
-                <circle cx="38" cy="68" r="4" fill="#4f8f3e"></circle>
-                <circle cx="46" cy="66" r="3" fill="#4f8f3e"></circle>
-                <path d="M10 92 q 12 -6 24 0 t 24 0 t 24 0"
-                      stroke="#5ea6d8" stroke-width="2" fill="none" stroke-linecap="round"></path>
-                <path d="M16 101 q 12 -6 24 0 t 24 0"
-                      stroke="#5ea6d8" stroke-width="2" fill="none" stroke-linecap="round" opacity="0.6"></path>
-              </svg>
-              <figcaption>位置示意</figcaption>
-            </figure>
-
-            <div class="id-fields">
-              <div class="field"><span class="k">名称</span><span class="v" id="fName">张家洲</span></div>
-              <div class="field"><span class="k">类型</span><span class="v" id="fType">江心洲</span></div>
-              <div class="field wide"><span class="k">所在河段</span><span class="v" id="fReach">××江下游××河段</span></div>
-              <div class="field"><span class="k">行政区</span><span class="v" id="fAdmin">××市××区</span></div>
-              <div class="field"><span class="k">面积</span><span class="v" id="fArea">2.35 km²</span></div>
-              <div class="field"><span class="k">滩顶高程</span><span class="v" id="fElev">12.6 m</span></div>
-              <div class="field"><span class="k">岸线长度</span><span class="v" id="fShore">5.2 km</span></div>
-              <div class="field"><span class="k">利用现状</span><span class="v" id="fUse">生态保留</span></div>
-              <div class="field"><span class="k">保护等级</span><span class="v" id="fLevel">二级保护</span></div>
-            </div>
-          </div>
-
-          <!-- 卡尾：发证信息 + 核验二维码（图案由 JS 绘制） -->
-          <div class="id-card-foot">
-            <div>
-              <div class="tip">建档日期：<span id="fDate">2026-03-12</span> · 发证单位：××流域河道管理事务中心（示例）</div>
-              <div class="verify-no">核验码：<span id="qrId">ZT-0001</span></div>
-            </div>
-            <div class="qr-wrap">
-              <div class="qr" id="qrBox" role="img" aria-label="核验二维码（装饰示例）"></div>
-              <span class="tip">扫码核验</span>
-            </div>
-          </div>
-        </div>
-      </div>
+      <!-- ² 使用 &sup2; 实体、° 使用 &deg; 实体，确保任何环境下都正确显示 -->
+      <p class="tip">例如：张家洲本期完整编号为 <code>YZ05404819626129261_DS</code>（枯水期·稳定）。</p>
     </section>
 
-    <!-- ③ 左：监测预警；右：类型分布 -->
-    <section class="columns">
+    <!-- ============ ③ 身份档案示例（锚点 archives） ============ -->
+    <section id="archives" class="card">
+      <h2>身份档案示例：张家洲</h2>
 
-      <div class="panel" id="alerts">
-        <div class="panel-head">
-          <h2>监测预警</h2>
-          <span class="tip">近 24 小时（模拟数据）</span>
-        </div>
-        <ul class="alerts">
-          <li>
-            <span class="dot red"></span>
-            <div>
-              <strong>侵占预警</strong>：王家边滩疑似新增违建，无人机巡查发现，已派单现场核实。
-              <time datetime="2026-10-07T08:42">10-07 08:42</time>
-            </div>
-          </li>
-          <li>
-            <span class="dot yellow"></span>
-            <div>
-              <strong>防汛提醒</strong>：新淤洲预计 10 月 9 日过流，请提前劝离滞留人员并加强巡查。
-              <time datetime="2026-10-06T20:15">10-06 20:15</time>
-            </div>
-          </li>
-          <li>
-            <span class="dot green"></span>
-            <div>
-              <strong>档案核验</strong>：本月 8 处洲滩完成身份证信息复核，未发现异常。
-              <time datetime="2026-10-06T16:30">10-06 16:30</time>
-            </div>
-          </li>
-        </ul>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>字段</th>
+              <th>内容</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>基础ID</td><td><code>YZ05404819626129261</code></td></tr>
+            <tr><td>名称</td><td>张家洲</td></tr>
+            <tr><td>类型</td><td>江心洲</td></tr>
+            <tr><td>所在位置</td><td>雅江中游 · 米林河段</td></tr>
+            <tr><td>行政区</td><td>米林市（行政区代码 540481）</td></tr>
+            <tr><td>质心坐标</td><td>东经 96.261&deg;，北纬 29.261&deg;</td></tr>
+            <tr><td>面积</td><td>2.35 km&sup2;</td></tr>
+            <tr><td>滩顶高程</td><td class="missing">暂无数据</td></tr>
+            <tr><td>建档日期</td><td>2026-03-12</td></tr>
+            <tr><td>本期状态后缀</td><td>DS（枯水期·稳定）</td></tr>
+          </tbody>
+        </table>
       </div>
 
-      <div class="panel" id="dist">
-        <div class="panel-head">
-          <h2>洲滩类型分布</h2>
-          <span class="tip">共 126 处</span>
-        </div>
-        <!-- 用 CSS 宽度百分比画条形图：宽度 = 数量 ÷ 最大值 -->
-        <div class="bars">
-          <div class="bar-row">
-            <span>江心洲</span>
-            <div class="bar-track"><div class="bar-fill" style="width: 47%"></div></div>
-            <span class="bar-count">28 处</span>
-          </div>
-          <div class="bar-row">
-            <span>沙洲</span>
-            <div class="bar-track"><div class="bar-fill b2" style="width: 66%"></div></div>
-            <span class="bar-count">39 处</span>
-          </div>
-          <div class="bar-row">
-            <span>边滩</span>
-            <div class="bar-track"><div class="bar-fill b3" style="width: 100%"></div></div>
-            <span class="bar-count">59 处</span>
-          </div>
-        </div>
-        <p class="hint">示例：28 ÷ 59 ≈ 47%，所以江心洲的条宽设为 47%。</p>
+      <h3>同一洲滩、不同水文期的完整编号示例</h3>
+      <ul>
+        <li>2023 年枯水期（出露、形态稳定）：<code>YZ05404819626129261_DS</code></li>
+        <li>2023 年丰水期（被切割／淹没）：<code>YZ05404819626129261_FX</code></li>
+        <li>2024 年平水期（恢复、位置微移）：<code>YZ05404819626129261_NY</code></li>
+      </ul>
+
+      <p class="tip">字段缺失时显示“暂无数据”，不使用 0 或空白替代；填写规则详见下方“发证规范”。</p>
+    </section>
+
+    <!-- ============ ④ 发证规范（锚点 rules） ============ -->
+    <section id="rules" class="card">
+      <h2>发证规范</h2>
+      <p>完整身份证号＝基础ID（19 位）＋“_”＋动态后缀（2 位）。以下为编号与填写的要点，细则见《雅江洲滩“数字身份证”命名规则》。</p>
+
+      <h3>基础ID：3 段组成，共 19 位（确定“是谁”）</h3>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>组成</th>
+              <th>位数</th>
+              <th>说明</th>
+              <th>示例</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>流域段代码</td>
+              <td>3 位</td>
+              <td>YS0＝上游；YZ0＝中游；YX0＝下游</td>
+              <td><code>YZ0</code></td>
+            </tr>
+            <tr>
+              <td>行政区代码</td>
+              <td>6 位</td>
+              <td>按现行行政区划代码填写</td>
+              <td><code>540481</code>（米林市）</td>
+            </tr>
+            <tr>
+              <td>地理位置码</td>
+              <td>10 位</td>
+              <td>取洲滩质心坐标：经度、纬度各 5 位（整数 2 位＋小数 3 位）</td>
+              <td>东经 96.261&deg;、北纬 29.261&deg; → <code>9626129261</code></td>
+            </tr>
+          </tbody>
+        </table>
       </div>
+
+      <h3>动态后缀：2 位字母（确定“现在是什么状态”）</h3>
+      <ul>
+        <li>第 1 位 · 水文期：D＝枯水期（出露面积最大、形态最复杂）；N＝平水期（相对稳定）；F＝丰水期（被淹没或切割、形态破碎）。</li>
+        <li>第 2 位 · 形态：S＝稳定（面积或形状变化小于 10%）；Y＝游荡（位置或形状中等变化）；X＝新生或消亡（新出现的沙洲或即将消失的沙洲）。</li>
+      </ul>
+      <p>完整编号示例：<code>YZ05404819626129261_DS</code>（2023 年枯水期 · 稳定）。</p>
+
+      <h3>常见后缀组合（节选 · 跨水文期观察）</h3>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>组合</th>
+              <th>含义</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td><code>NS</code></td><td>三个水文期形态均稳定，几乎无明显变化</td></tr>
+            <tr><td><code>NY</code></td><td>各水文期大小形状明显变化、互不相同，但洲滩数量保持不变</td></tr>
+            <tr><td><code>NX</code></td><td>各水文期洲滩数量均发生变化、互不相同</td></tr>
+            <tr><td><code>FY</code></td><td>平水期与枯水期相似；丰水期形状大小明显改变、淹没部分较多</td></tr>
+            <tr><td><code>FX</code></td><td>平水期与枯水期相似；丰水期被上涨水位切割成多个新洲滩，或完全淹没</td></tr>
+            <tr><td><code>DY</code></td><td>平水期与丰水期相似；枯水期形态明显改变、裸露部分较多</td></tr>
+            <tr><td><code>DX</code></td><td>平水期与丰水期相似；枯水期因水位下降，多个洲滩合成一个新洲滩</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="tip">完整定义与更多组合见《雅江洲滩“数字身份证”命名规则》。</p>
+
+      <h3>字段填写规则</h3>
+      <ul>
+        <li>字段信息缺失时一律填写“暂无数据”，不使用 0、空白或虚构值代替。</li>
+        <li>面积以 km&sup2; 为单位记录、保留两位小数；日期使用 YYYY-MM-DD 格式（如 2026-03-12）。</li>
+        <li>基础ID 一经发证不再变更；每次观测在基础ID 后附加当期 2 位后缀，形成完整编号。</li>
+        <li>基础ID 全库唯一；后缀第 1 位仅取 D／N／F，第 2 位仅取 S／Y／X。</li>
+      </ul>
+
+      <h3>发证流程</h3>
+      <ol>
+        <li>采集：现场记录洲滩基本信息，并采集质心坐标。</li>
+        <li>编排：按“流域段＋行政区＋地理位置”三段生成 19 位基础ID，登记入名录。</li>
+        <li>建档：按字段表录入档案；缺失字段填写“暂无数据”。</li>
+        <li>发证：观测当期形态后附加 2 位后缀（如 DS），形成完整编号。</li>
+        <li>复核：汛前核查逐项核对，缺项列入补录清单。</li>
+      </ol>
     </section>
 
   </main>
 
-  <!-- ==================== 页脚 ==================== -->
-  <footer>
-    本页面为 HTML / CSS / JavaScript 学习示例：全部数据均为模拟，仅供教学演示，不可用于实际业务。
+  <!-- ============ 页脚：演示数据声明、小组信息、更新日期 ============ -->
+  <footer class="site-footer">
+    <div class="wrap">
+      <p>本页所有洲滩名称、编号、坐标与数值均为课程演示数据，不代表真实情况，不用于实际业务。</p>
+      <p>小组：floodplain ｜ 项目：雅江洲滩数字身份证系统 ｜ 版本：v1.1（第一阶段） ｜ 更新日期：2026-10-08</p>
+    </div>
   </footer>
 
-  <!-- ==================== JavaScript ==================== -->
-  <script>
-    /* ==========================================================
-       JS 负责四件事：
-       ① 把"数据数组"渲染成表格   ② 搜索筛选 + 点击换证
-       ③ 画核验二维码            ④ 走时钟、切导航高亮
-       ========================================================== */
-
-    /* ---------- ① 洲滩档案数据（模拟数据，可自由增删改） ---------- */
-    var shoalData = [
-      { id: 'ZT-0001', name: '张家洲',   type: '江心洲', reach: '××江下游××河段', admin: '××市××区',
-        area: '2.35', elev: '12.6', shore: '5.2', use: '生态保留', level: '二级保护', date: '2026-03-12', status: '正常' },
-      { id: 'ZT-0002', name: '李家沙洲', type: '沙洲',   reach: '××江中游××河段', admin: '××市××县',
-        area: '0.86', elev: '9.8',  shore: '3.1', use: '采砂禁采区', level: '一般保护', date: '2026-03-20', status: '关注' },
-      { id: 'ZT-0003', name: '王家边滩', type: '边滩',   reach: '××江下游××河段', admin: '××市××区',
-        area: '1.42', elev: '11.2', shore: '4.0', use: '农业利用', level: '二级保护', date: '2026-04-02', status: '预警' },
-      { id: 'ZT-0004', name: '青草洲',   type: '江心洲', reach: '××江上游××河段', admin: '××市××县',
-        area: '3.10', elev: '14.1', shore: '6.8', use: '生态保留', level: '一级保护', date: '2026-02-18', status: '正常' },
-      { id: 'ZT-0005', name: '芦苇滩',   type: '边滩',   reach: '××江中游××河段', admin: '××市××区',
-        area: '0.95', elev: '10.4', shore: '3.6', use: '湿地保护', level: '二级保护', date: '2026-05-06', status: '正常' },
-      { id: 'ZT-0006', name: '新淤洲',   type: '沙洲',   reach: '××江下游××河段', admin: '××市××区',
-        area: '0.52', elev: '8.9',  shore: '2.4', use: '自然保留', level: '一般保护', date: '2026-06-11', status: '关注' }
-    ];
-
-    // 状态 → 徽标颜色类的对应表
-    var statusClass = { '正常': 'ok', '关注': 'watch', '预警': 'bad' };
-
-    /* ---------- ② 根据数据数组生成表格行 ---------- */
-    var tbody = document.getElementById('shoalBody');
-    var emptyRow = document.getElementById('emptyRow');
-
-    function renderTable() {
-      // 先清掉旧的"数据行"（保留"无结果"提示行）
-      tbody.querySelectorAll('tr[data-name]').forEach(function (row) { row.remove(); });
-
-      shoalData.forEach(function (s, i) {
-        var tr = document.createElement('tr');
-        // 把关键信息存到 data-* 属性上，供搜索和点击时使用
-        tr.dataset.index = i;
-        tr.dataset.name = s.name;
-        tr.dataset.id = s.id;
-        tr.dataset.type = s.type;
-
-        // 拼接这一行的单元格（演示写法；真实项目要注意对数据做转义）
-        tr.innerHTML =
-          '<td>' + s.id + '</td>' +
-          '<td>' + s.name + '</td>' +
-          '<td>' + s.type + '</td>' +
-          '<td>' + s.reach + '</td>' +
-          '<td>' + s.area + '</td>' +
-          '<td><span class="badge ' + statusClass[s.status] + '">' + s.status + '</span></td>';
-
-        tbody.insertBefore(tr, emptyRow);   // 插到提示行前面
-      });
-    }
-
-    /* ---------- ③ 把一条档案显示到"数字身份证"上 ---------- */
-    function showCard(s) {
-      document.getElementById('cardNo').textContent = s.id;
-      document.getElementById('qrId').textContent = s.id;
-      document.getElementById('fName').textContent = s.name;
-      document.getElementById('fType').textContent = s.type;
-      document.getElementById('fReach').textContent = s.reach;
-      document.getElementById('fAdmin').textContent = s.admin;
-      document.getElementById('fArea').textContent = s.area + ' km²';
-      document.getElementById('fElev').textContent = s.elev + ' m';
-      document.getElementById('fShore').textContent = s.shore + ' km';
-      document.getElementById('fUse').textContent = s.use;
-      document.getElementById('fLevel').textContent = s.level;
-      document.getElementById('fDate').textContent = s.date;
-
-      var badge = document.getElementById('cardStatus');
-      badge.textContent = s.status;
-      badge.className = 'badge ' + statusClass[s.status];
-    }
-
-    /* ---------- ④ 点击表格行：高亮 + 换证 ---------- */
-    var selectedRow = null;
-
-    tbody.addEventListener('click', function (e) {
-      // 从被点到的元素往上找最近的 <tr>（点到单元格、徽标都能正确处理）
-      var tr = e.target.closest('tr');
-      if (!tr || !tr.dataset.name) return;  // 点到"无结果"提示行就忽略
-
-      if (selectedRow) selectedRow.classList.remove('selected');
-      tr.classList.add('selected');
-      selectedRow = tr;
-
-      showCard(shoalData[tr.dataset.index]);
-    });
-
-    /* ---------- ⑤ 搜索筛选 ---------- */
-    var keywordInput = document.getElementById('keyword');
-    var typeSelect = document.getElementById('typeFilter');
-    var listCount = document.getElementById('listCount');
-
-    function applyFilter() {
-      var kw = keywordInput.value.trim().toLowerCase();
-      var type = typeSelect.value;
-      var visible = 0;
-
-      tbody.querySelectorAll('tr[data-name]').forEach(function (row) {
-        var text = (row.dataset.name + row.dataset.id).toLowerCase();
-        var hitKeyword = (kw === '') || text.indexOf(kw) !== -1;   // 关键词为空 = 不限制
-        var hitType = (type === 'all') || row.dataset.type === type;
-
-        row.hidden = !(hitKeyword && hitType);   // hidden = true 时该行隐藏
-        if (!row.hidden) visible++;
-      });
-
-      listCount.textContent = '共 ' + visible + ' 处';
-      emptyRow.hidden = (visible !== 0);         // 一条都没匹配时显示提示行
-    }
-
-    keywordInput.addEventListener('input', applyFilter);   // 边输入边筛选
-    typeSelect.addEventListener('change', applyFilter);    // 切换类型立即筛选
-
-    // 点"查询"或按回车：阻止表单默认跳转，再执行筛选
-    document.getElementById('searchForm').addEventListener('submit', function (e) {
-      e.preventDefault();
-      applyFilter();
-    });
-
-    // "重置"按钮：清空条件后重新筛选
-    document.getElementById('resetBtn').addEventListener('click', function () {
-      keywordInput.value = '';
-      typeSelect.value = 'all';
-      applyFilter();
-    });
-
-    /* ---------- ⑥ 绘制核验二维码（装饰图案：1 = 深色格） ---------- */
-    var qrPattern = [
-      '11111011111',
-      '10001010001',
-      '10101110101',
-      '10001010001',
-      '11111011111',
-      '00000100000',
-      '11111010110',
-      '10001101001',
-      '10101011101',
-      '10001100100',
-      '11111010111'
-    ];
-
-    var qrBox = document.getElementById('qrBox');
-    qrPattern.forEach(function (line) {
-      for (var c = 0; c < line.length; c++) {
-        var cell = document.createElement('span');
-        if (line.charAt(c) === '1') cell.className = 'on';
-        qrBox.appendChild(cell);
-      }
-    });
-
-    /* ---------- ⑦ 顶部时钟 ---------- */
-    function pad(n) { return n < 10 ? '0' + n : '' + n; }
-
-    function nowText() {
-      var d = new Date();
-      return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()) +
-             ' ' + pad(d.getHours()) + ':' + pad(d.getMinutes()) + ':' + pad(d.getSeconds());
-    }
-
-    var clock = document.getElementById('clock');
-    function tick() { clock.textContent = nowText(); }
-    tick();
-    setInterval(tick, 1000);
-
-    /* ---------- ⑧ 初始化 ---------- */
-    renderTable();     // 根据数据生成表格
-    applyFilter();     // 更新计数、提示行状态
-
-    var firstRow = tbody.querySelector('tr[data-index="0"]');
-    firstRow.classList.add('selected');   // 默认选中第一条
-    selectedRow = firstRow;
-    showCard(shoalData[0]);               // 右侧身份证默认显示第一条
-
-    /* ---------- ⑨ 点击导航后切换高亮 ---------- */
-    document.querySelectorAll('nav a').forEach(function (a) {
-      a.addEventListener('click', function () {
-        document.querySelectorAll('nav a').forEach(function (x) { x.classList.remove('active'); });
-        a.classList.add('active');
-      });
-    });
-  </script>
 </body>
 </html>
